@@ -1,13 +1,19 @@
 #include <xc.inc>
 
-extrn	GLCD_setup, GLCD_enable, GLCD_on, GLCD_off
+extrn	touchscreen_setup, touchscreen_detect
 
 psect	code, abs
 
 org	    100h
 
 setup:
-    call    GLCD_setup
-    call    GLCD_on
+    call    touchscreen_setup
+    clrf    PORTC, A
+    clrf    TRISC, A
+    movlw   0x00
+
+
+main:
+    call    touchscreen_detect
 
     end

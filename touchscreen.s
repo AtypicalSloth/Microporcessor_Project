@@ -97,20 +97,25 @@ touchscreen_detect:
     call    touchscreen_read
     movlw   0x00
     
+detect_XH:
     CPFSGT  readXH, A
-    bra	    touchscreen_detect
-    
+    bra	    detect_XL
+    bra	    test_label
+
+detect_XL:
     CPFSGT  readXL, A
-    bra	    touchscreen_detect
+    bra	    touchscreen_read
+    bra	    test_label
+ 
+    ;CPFSGT  readYH, A
+    ;bra	    touchscreen_detect
     
-    CPFSGT  readYH, A
-    bra	    touchscreen_detect
-    
-    CPFSGT  readYL, A
-    bra	    touchscreen_detect
-    
+    ;CPFSGT  readYL, A
+    ;bra	    touchscreen_detect
+
+test_label:
     movlw   0xFF
-    movwF   PORTC, A
+    movwF   PORTH, A
     
     return
 

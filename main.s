@@ -10,6 +10,9 @@ setup:
     call    touchscreen_setup
     clrf    PORTH, A
     clrf    TRISH, A
+    clrf    PORTJ, A 
+    clrf    TRISJ, A
+    
     movlw   0x00
 
 

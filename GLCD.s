@@ -1,72 +1,132 @@
-	#include <xc.inc>
-
-global	GLCD_setup, GLCD_enable, GLCD_on, GLCD_off
-
-psect	udata_acs	
-
-PORTB_pins:
-    GLCD_CS1	EQU 0
-    GLCD_CS2	EQU 1
-    GLCD_RS	EQU 2
-    GLCD_RW	EQU 3
-    GLCD_E	EQU 4
-    GLCD_RST	EQU 5
+#include <xc.inc>
 
 
-psect	code, class=CODE
+psect	udata_acs		    ; named variables in access ram
 
-org	0x500
-
-GLCD_setup:
-    clrf	LATB, A
-    clrf	LATD, A
-    clrf	TRISB, A
-    clrf	TRISD, A
-    return
-
-
-GLCD_enable:
-    NOP					; Wait 500 ns
-    NOP
-    NOP
-    NOP
-    NOP
-    NOP
-    NOP
-    NOP
-    bsf		LATB, GLCD_E, A	; Pull E high
-    NOP					; Wait 500 ns
-    NOP
-    NOP
-    NOP
-    NOP
-    NOP
-    NOP
-    NOP
-    bcf		LATB, GLCD_E, A	; Pull E low
-    NOP					; Wait 62.5 ns
-    return
+LCD_Counter:	ds 1 
+LCD_XY_Counter:	ds 1
+	
+LCD_pins:
+	LCD_E	EQU 4		    ; LCD enable bit
+    	LCD_RS	EQU 2		    ; LCD register select bit
+	LCD_RW	EQU 3 
+	LCD_CS1	EQU 0
+	LCD_CS2 EQU 1
+	LCD_RST	EQU 5
 
 
-GLCD_on:
-    bcf		LATB, GLCD_RS, A	; Set port B pins
-    bcf		LATB, GLCD_RW, A
+psect	udata_bank4
+
+myArrayxy:	ds  64		    ; reserve 64 bytes for data
+myArraybytes:   ds  64		    ; reserve 64 bytes for data
+
+
+psect	data 
+
+table_xy:			    ; x page between [1, 8], y address between [0, 63] alternating 
+    db	3, 0, 4, 0, 5, 0, 6, 0 
+    table_xy_l	EQU 8
+	
+table_bytes:			    ; 64 entries
+    db	0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF
+    db	0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF
+    db	0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF
+    db	0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF
     
-    movlw	00111111B		; Set port D pins
-    movwf	LATD, A
+    table_bytes_l   EQU 64
+
+
+psect	lcd_code,class=CODE
     
-    call	GLCD_enable		; Pulse enable pin
+load_table_xy: 
+    ; * Main programme **
+ 	lfsr	1, myArrayxy		; Load FSR0 with address in RAM	
+	movlw	low highword(table_xy)	; address of data in PM
+	movwf	TBLPTRU, A		; load upper bits to TBLPTRU
+	movlw	high(table_xy)		; address of data in PM
+	movwf	TBLPTRH, A		; load high byte to TBLPTRH
+	movlw	low(table_xy)		; address of data in PM
+	movwf	TBLPTRL, A		; load low byte to TBLPTRL
+	movlw	table_xy_l		; bytes to read
+	movwf 	counter, A		; our counter register
+loop:
+	tblrd*+				; one byte from PM to TABLAT, increment TBLPRT
+	movff	TABLAT, POSTINC0	; move data from TABLAT to (FSR0), inc FSR0	
+	decfsz	counter, A		; count down to zero
+	bra	loop			; keep going until finished
+	
+	return
+
+
+load_table_bytes: 
+    ; * Main programme **
+ 	lfsr	2, myArraybytes		; Load FSR0 with address in RAM	
+	movlw	low highword(table_bytes)	; address of data in PM
+	movwf	TBLPTRU, A		; load upper bits to TBLPTRU
+	movlw	high(table_bytes)	; address of data in PM
+	movwf	TBLPTRH, A		; load high byte to TBLPTRH
+	movlw	low(table_bytes)	; address of data in PM
+	movwf	TBLPTRL, A		; load low byte to TBLPTRL
+	movlw	table_bytes_l		; bytes to read
+	movwf 	counter, A		; our counter register
+loop:
+	tblrd*+				; one byte from PM to TABLAT, increment TBLPRT
+	movff	TABLAT, POSTINC0	; move data from TABLAT to (FSR0), inc FSR0	
+	decfsz	counter, A		; count down to zero
+	bra	loop			; keep going until finished
+
+	return
+
+
+LCD_Write_message:
+	movlw   8			; 8 y addresses across
+	movwf   LCD_counter, A
+LCD_Loop_message:			;send bytes data, message stored in FSR2, length stored in W
+	movf    POSTINC2, W, A
+	call    LCD_Send_Byte_D
+	decfsz  LCD_counter, A
+	bra	LCD_Loop_message
+	
+	return
+
+
+display_digit: 
+    
+	; select screen 1
+	bcf	LATB, LCD_CS1, A 
+	bsf	LATB, LCD_CS2, A
+    
+	; load table xy into FSR1
+	call    load_table_xy
+	; read table xy 
+	movlw   table_xy_l 
+	movwf   LCD_XY_Counter, A 
+	; return?
+	
+set_address:
+	; set x page 
+	movf    POSTINC1, W, A
+	addwf   183 
+	call    LCD_Send_Byte_I 
+	decf    LCD_XY_Counter, 1, A
+	; set y address 
+	movf    POSTINC1, W, A
+	addwf   01000000B 
+	call    LCD_Send_Byte_I 
+	decf    LCD_XY_Counter, 1, A
+    
+	;send in data from table
+	call    LCD_Write_Message
+    
+	;check for end of xy table
+	tstfsz  LCD_XY_Counter, A
+	bra	    set_address
+
+	return
+    
+    
+    ; select screen 2 
+    bsf	LATB, LCD_CS1, A 
+    bcf	LATB, LCD_CS2, A 
+   
     return
-
-
-GLCD_off:
-    bcf		LATB, GLCD_RS, A	; Set port B pins
-    bcf		LATB, GLCD_RW, A
-    
-    movlw	00111110B		; Set port D pins
-    movwf	LATD, A
-    
-    call	GLCD_enable		; Pulse enable pin
-    return
-
-end

@@ -115,8 +115,11 @@ detect_XL:
 
 test_label:
     movlw   0xFF
-    movwF   PORTH, A
+    movwf   PORTH, A
     
+    movff    readYH, PORTJ, A
+    
+    ; PORTJ LEDs shows XH bit 
     return
 
 

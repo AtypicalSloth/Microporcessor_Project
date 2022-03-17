@@ -1,6 +1,7 @@
 #include <xc.inc>
 
 global	timer_setup, timer_on, timer_int_hi, counter
+extrn	stat
 
 
 psect	udata_acs
@@ -8,8 +9,7 @@ psect	udata_acs
 counter:    ds	1
 
 
-psect	timercode
-org	    900h
+psect	timer_code, class=CODE
 
 timer_setup:
     bsf		TMR0IE			; Interrupts to be triggered by timer 0
@@ -35,6 +35,10 @@ timer_on:
 
 
 timer_int_hi:
+    ; NEED TO KEEP RECORD OF OLD STATUS REGISTER!!!!!   - STATUS
+    
+    movff	STATUS, stat, A
+    
     btfss	TMR0IF			; Check this is timer 0 interrupt
     retfie	f			; Return if not
     
@@ -85,6 +89,5 @@ question_mark:
 
 timer_int_hi_end:
     bcf		TMR0IF			; Clear interrupt flag
+    movff	stat, STATUS, A
     retfie	f
-
-end

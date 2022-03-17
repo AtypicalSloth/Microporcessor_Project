@@ -1,10 +1,12 @@
 #include <xc.inc>
 
 extrn	touchscreen_setup, touchscreen_detect
-extrn	timer_setup
-extrn	timer_on
-extrn	timer_int_hi
-extrn	counter
+extrn	timer_setup, timer_on, timer_int_hi, counter
+extrn	GLCD_setup, screen_setup, screen_write
+global	stat
+
+psect	udata_acs
+stat:	ds  1
 
 ;psect	code, abs
 
@@ -32,16 +34,13 @@ psect	code, abs
 
 rst:
     org	    0x0000
-    movlw   0x0A
-    movwf   counter, A
-    goto    setup
+    goto    counter_setup
 
 interrupt:
     org	    0x0008
     call    timer_int_hi
 
 setup:
-    org	    100h
     movlw   0x0A
     CPFSEQ  counter, A
     goto    loop
@@ -53,5 +52,10 @@ setup:
 
 loop:
     goto    $
-    
-    end
+
+counter_setup:
+    movlw   0x0A
+    movwf   counter, A
+    goto    setup
+
+    end	    rst

@@ -17,9 +17,8 @@ readYH:	    ds	1
 readYL:	    ds	1
 
 
-psect	code, class=CODE
+psect	touchscreen_code, class=CODE
 
-org	0x800
 ; F  :  1  2  3  4  5  6  7
 ; AN :  6  7  8  9 10 11  5
 
@@ -121,6 +120,3 @@ test_label:
     
     ; PORTJ LEDs shows XH bit 
     return
-
-
-end

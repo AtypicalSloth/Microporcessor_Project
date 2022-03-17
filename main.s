@@ -1,6 +1,9 @@
 #include <xc.inc>
 
-extrn	touchscreen_setup, touchscreen_detect, timer_setup, timer_on, timer_int_hi
+extrn	touchscreen_setup, touchscreen_detect
+extrn	timer_setup
+extrn	timer_on
+extrn	timer_int_hi
 
 ;psect	code, abs
 
@@ -21,6 +24,10 @@ extrn	touchscreen_setup, touchscreen_detect, timer_setup, timer_on, timer_int_hi
 ;    bra	    main
 
 ;    end
+
+
+
+psect	code, abs
 
 interrupt:
     org	    0x0008

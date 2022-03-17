@@ -8,9 +8,7 @@ psect	udata_acs
 counter:    ds	1
 
 
-psect	code, abs
-
-org		200h
+psect	timer_code, class=code
 
 timer_setup:
     bsf		TMR0IE			; Interrupts to be triggered by timer 0
@@ -30,7 +28,7 @@ timer_on:
     movlw	0x0A
     movwf	PORTD, A
     
-    bsf		TMR0ON, A		; Turn on timer 0
+    bsf		TMR0ON		; Turn on timer 0
     
     return
 
@@ -62,7 +60,7 @@ test_for_8:
 test_for_7:
     movlw	0x07			; Compare counter to 7
     CPFSEQ	counter, A		; Skip if equal to 7
-    bra		test_for_6		; Go to test if counter is 0
+    bra		test_for_0		; Go to test if counter is 0
     ;call	show 7 on display	; Show 7 on display
     movlw	0x07
     movwf	PORTD, A
@@ -75,7 +73,7 @@ test_for_0:
     ;call	show ? on display	; Show ? on display
     movlw	0xFF
     movwf	PORTD, A
-    bcf		TMR0ON, A		; Turn off timer 0
+    bcf		TMR0ON			; Turn off timer 0
     goto	timer_int_hi_end	; Go to function return
 
 question_mark:

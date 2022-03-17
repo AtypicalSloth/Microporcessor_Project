@@ -1,6 +1,6 @@
 #include <xc.inc>
 
-global	timer_setup, timer_on, timer_int_hi
+global	timer_setup, timer_on, timer_int_hi, counter
 
 
 psect	udata_acs
@@ -8,7 +8,8 @@ psect	udata_acs
 counter:    ds	1
 
 
-psect	timer_code, class=code
+psect	timercode
+org	    900h
 
 timer_setup:
     bsf		TMR0IE			; Interrupts to be triggered by timer 0
@@ -71,7 +72,7 @@ test_for_0:
     CPFSEQ	counter, A		; Skip if equal to 0
     bra		question_mark		; Go to show ? if counter is 6-1
     ;call	show ? on display	; Show ? on display
-    movlw	0xFF
+    movlw	0x00
     movwf	PORTD, A
     bcf		TMR0ON			; Turn off timer 0
     goto	timer_int_hi_end	; Go to function return
@@ -85,6 +86,5 @@ question_mark:
 timer_int_hi_end:
     bcf		TMR0IF			; Clear interrupt flag
     retfie	f
-
 
 end

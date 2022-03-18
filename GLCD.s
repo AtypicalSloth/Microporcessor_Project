@@ -2,14 +2,14 @@
 
 global  GLCD_Setup, Clear_Screen, Display_Digit7, Display_Digit8, Display_Digit9, Display_Digit10, Display_DigitQ
     
-psect	udata_acs   ; named variables in access ram
+psect	udata_acs			; named variables in access ram
 	
-LCD_cnt_l:	ds 1   ; reserve 1 byte for variable LCD_cnt_l
-LCD_cnt_h:	ds 1   ; reserve 1 byte for variable LCD_cnt_h
-LCD_cnt_ms:	ds 1   ; reserve 1 byte for ms counter
-LCD_tmp:	ds 1   ; reserve 1 byte for temporary use
+LCD_cnt_l:	ds 1			; reserve 1 byte for variable LCD_cnt_l
+LCD_cnt_h:	ds 1			; reserve 1 byte for variable LCD_cnt_h
+LCD_cnt_ms:	ds 1			; reserve 1 byte for ms counter
+LCD_tmp:	ds 1			; reserve 1 byte for temporary use
     
-LCD_counter:	ds 1   ; reserve 1 byte for counting through nessage
+LCD_counter:	ds 1			; reserve 1 byte for counting through nessage
 counter:	ds 1
 
 table_7:	ds 3
@@ -18,13 +18,13 @@ table_9:	ds 3
 table_10:	ds 3
 table_Q:	ds 3
     
-LCD_x_address:	ds 1   ; reserve 1 byte for iterating through x page [0, 63]
-LCD_y_address:	ds 1   ; reserve 1 byte for iterating through y [1,8]
+LCD_x_address:	ds 1			; reserve 1 byte for iterating through x page [0, 63]
+LCD_y_address:	ds 1			; reserve 1 byte for iterating through y [1,8]
 
 	
 	; LCD control bits
-	LCD_E	EQU 4	; LCD enable bit
-    	LCD_RS	EQU 2	; LCD register select bit
+	LCD_E	EQU 4			; LCD enable bit
+    	LCD_RS	EQU 2			; LCD register select bit
 	LCD_RW	EQU 3 
 	LCD_CS1	EQU 0
 	LCD_CS2 EQU 1
@@ -37,8 +37,8 @@ LCD_y_address:	ds 1   ; reserve 1 byte for iterating through y [1,8]
 	RY	EQU 0
 	table_l EQU 8
 	
-psect udata_bank4 ; reserve data anywhere in RAM (here at 0x400)
-myArray: ds 64 ; reserve 128 bytes for message data
+psect udata_bank4			; reserve data anywhere in RAM (here at 0x400)
+myArray: ds 64				; reserve 128 bytes for message data
 	
 psect data
 
@@ -77,30 +77,30 @@ psect	    glcd_code, class=CODE
 GLCD_Setup: 
 
 	movlw   0x00
-	movwf   TRISB, A	    ; Set port B to output
-	movwf   TRISD, A	    ; Set port D to output
+	movwf   TRISB, A		; Set port B to output
+	movwf   TRISD, A		; Set port D to output
 	
 	; every command we send from now on requires a delay of 500ns
 	
-	clrf    LATB, A		    ; clear latches
+	clrf    LATB, A			; clear latches
 	clrf    LATD, A
 
-	bcf	LATB, LCD_CS1, A    ; select screen 1
-	bcf	LATB, LCD_CS2, A    ; select screen 2
+	bcf	LATB, LCD_CS1, A	; select screen 1
+	bcf	LATB, LCD_CS2, A	; select screen 2
 	bcf	LATB, LCD_RS, A	
 	bcf	LATB, LCD_RW, A 
 	bcf	LATB, LCD_E, A  
 	bsf	LATB, LCD_RST, A
 
 	movlw   40
-	call    LCD_delay_ms	    ; wait 40ms for LCD to start up properly
-	movlw   00111110B	    ; display off
+	call    LCD_delay_ms		; wait 40ms for LCD to start up properly
+	movlw   00111110B		; display off
 	call    LCD_Send_Byte_I
-	movlw   10111001B	    ; set x address to 1
+	movlw   10111001B		; set x address to 1
 	call    LCD_Send_Byte_I
-	movlw   01000000B	    ; Set Y-address to 0
+	movlw   01000000B		; Set Y-address to 0
 	call    LCD_Send_Byte_I
-	movlw   00111111B	    ; display on
+	movlw   00111111B		; display on
 	call    LCD_Send_Byte_I
 	
 	; load table 7 address
@@ -350,6 +350,3 @@ lcdlp1:	decf 	LCD_cnt_l, F, A	; no carry when 0x00 -> 0xff
 	subwfb 	LCD_cnt_h, F, A	; no carry when 0x00 -> 0xff
 	bc 	lcdlp1		; carry, then loop again
 	return			; carry reset so return
-
-
-    end

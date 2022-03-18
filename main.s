@@ -1,13 +1,23 @@
 #include <xc.inc>
 
+; Subroutines from touchscreen file
 extrn	touchscreen_setup, touchscreen_detect
+    
+; Subroutines from timer/interrupt file
 extrn	timer_setup, timer_on, timer_int_hi, counter
-extrn	GLCD_setup, screen_setup, screen_write
+
+; Subroutines from GLCD file
+extrn	GLCD_Setup, Clear_Screen, Display_Digit7, Display_Digit8, Display_Digit9, Display_Digit10, Display_DigitQ
+
+; Make file register for recording status regiuster a global register
 global	stat
+
 
 psect	udata_acs
 stat:	ds  1
 
+
+; ######################### TOUCHSCREEN TEST CODE ##############################
 ;psect	code, abs
 
 ;org	    100h
@@ -29,7 +39,7 @@ stat:	ds  1
 ;    end
 
 
-
+; ######################### TIMER TEST CODE ####################################
 psect	code, abs
 
 rst:
@@ -44,8 +54,10 @@ setup:
     movlw   0x0A
     CPFSEQ  counter, A
     goto    loop
-    clrf    TRISD, A
-    clrf    LATD, A
+    call    GLCD_Setup
+    call    Clear_Screen
+    ;clrf    TRISD, A
+    ;clrf    LATD, A
     
     call    timer_setup
     call    timer_on
@@ -58,4 +70,29 @@ counter_setup:
     movwf   counter, A
     goto    setup
 
-    end	    rst
+    ;end	    rst
+
+
+; ######################### GLCD TEST CODE #####################################
+;psect	code, abs
+;	
+;main:
+;	org	0x0
+;	goto	start
+;	
+;start:
+;	call	GLCD_Setup
+;	call	Clear_Screen
+;
+;maincode: 
+;	
+;	call	Display_Digit7
+;	call	Display_Digit8
+;	call	Display_Digit9
+;	call	Display_Digit10
+;	call	Display_DigitQ
+;	goto	$
+;
+;	end	main
+
+end rst

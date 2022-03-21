@@ -1,7 +1,7 @@
 #include <xc.inc>
 
 ; Subroutines from touchscreen file
-extrn	touchscreen_setup, touchscreen_detect, touchscreen_detect2
+extrn	touchscreen_setup, touchscreen_detect
     
 ; Subroutines from timer/interrupt file
 extrn	timer_setup, timer_on, timer_int_hi, counter
@@ -144,5 +144,6 @@ setup:
 
 main:
     call    touchscreen_detect
+    bra	    main
     
     end	    setup

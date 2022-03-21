@@ -1,6 +1,7 @@
 #include <xc.inc>
 
-global	touchscreen_setup, touchscreen_detect, touchscreen_detect2
+global	touchscreen_setup, touchscreen_detect
+extrn	LCD_delay_x4us
 
 psect	udata_acs
 
@@ -33,10 +34,10 @@ touchscreen_setup:
     banksel ANCON1		    ; ANCON1 is not in access ram
     bsf	    ANSEL10		    ; Set x-read pin to analog
     
-    movlw   00110000B		    ; Trigger from ECCP2, Vref=4.096V,
+    movlw   00100000B		    ; Trigger from ECCP2, Vref=4.096V,
     movwf   ADCON1, A		    ; 0V -Vref
     
-    movlw   00100110B		    ; Left justified output, Fosc/64 clock and
+    movlw   00110001B		    ; Left justified output, Fosc/64 clock and
     movwf   ADCON2, A		    ; acquisition times
     
     movlb   0
@@ -46,10 +47,15 @@ touchscreen_setup:
 
 touchscreen_readX:
     bsf	    PORTE, DRIVEA, A	    ; Apply voltage in x-direction
+    NOP
     bcf	    PORTE, DRIVEB, A
+    NOP
     
     movlw   00011101B		    ; Select AN7 for measurement, turn on ADC
     movwf   ADCON0, A
+    
+    movlw   0x01
+    call    LCD_delay_x4us
     
     bsf	    GO			    ; Start conversion by setting GO bit
 
@@ -62,10 +68,15 @@ touchscreen_readX_loop:
 
 touchscreen_readY:
     bcf	    PORTE, DRIVEA, A	    ; Apply voltage in y-direction
+    NOP
     bsf	    PORTE, DRIVEB, A
+    NOP
     
     movlw   00101001B		    ; Select AN10 for measurement, turn on ADC
     movwf   ADCON0, A
+    
+    movlw   0x01
+    call    LCD_delay_x4us
     
     bsf	    GO			    ; Start conversion by setting GO bit
 
@@ -78,19 +89,19 @@ touchscreen_readY_loop:
 
 touchscreen_read:
     call    touchscreen_readX	    ; take x-reading
-    movff   ADRESH, readXH
-    movff   ADRESL, readXL
+    ;movff   ADRESH, readXH
+    ;movff   ADRESL, readXL
     
-    call    touchscreen_readY	    ; take y-reading
-    movff   ADRESH, readYH
-    movff   ADRESL, readYL
+    ;call    touchscreen_readY	    ; take y-reading
+    ;movff   ADRESH, readYH
+    ;movff   ADRESL, readYL
     
     return
 
 
 touchscreen_detect:
     call    touchscreen_read
-    movff    readYH, PORTJ, A
+    movff   ADRESH, PORTJ, A
     
     return				; PORTJ LEDs shows XH bit 
 

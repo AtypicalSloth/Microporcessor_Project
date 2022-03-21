@@ -1,6 +1,6 @@
 #include <xc.inc>
 
-global  GLCD_Setup, Clear_Screen, Display_Digit7, Display_Digit8, Display_Digit9, Display_Digit10, Display_DigitQ
+global  GLCD_Setup, Clear_Screen, Display_Digit7, Display_Digit8, Display_Digit9, Display_Digit10, Display_DigitQ, LCD_delay_x4us
     
 psect	udata_acs			; named variables in access ram
 	
@@ -217,11 +217,11 @@ Display_char:
 
 load_table: 
     ; load table to TABLAT
-	movf	POSTINC0, W	; address of data in PM
+	movf	POSTINC0, W, A	; address of data in PM
 	movwf	TBLPTRU, A		; load upper bits to TBLPTRU
-	movf	POSTINC0, W	; address of data in PM
+	movf	POSTINC0, W, A	; address of data in PM
 	movwf	TBLPTRH, A		; load high byte to TBLPTRH
-	movf	POSTINC0, W	; address of data in PM
+	movf	POSTINC0, W, A	; address of data in PM
 	movwf	TBLPTRL, A		; load low byte to TBLPTRL
 	return
 	

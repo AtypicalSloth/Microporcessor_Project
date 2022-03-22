@@ -1,13 +1,16 @@
 #include <xc.inc>
 
 ; Subroutines from touchscreen file
-extrn	touchscreen_setup, touchscreen_detect
+extrn	touchscreen_setup, touchscreen_read
     
 ; Subroutines from timer/interrupt file
 extrn	timer_setup, timer_on, timer_int_hi, counter
 
 ; Subroutines from GLCD file
 extrn	GLCD_Setup, Clear_Screen, Display_Digit7, Display_Digit8, Display_Digit9, Display_Digit10, Display_DigitQ
+
+; Subroutines from ADC testing file
+extrn	ADC_Setup2, ADC_Read2
 
 ; Make file register for recording status regiuster a global register
 global	stat
@@ -130,20 +133,42 @@ stat:	ds  1
 ;	end	main
 
 
+    
+; ################# ADC TEST CODE ##############################################
+;psect	code, abs
+;
+;setup:
+;    org	    0x0000
+;    clrf    TRISH, A
+;    clrf    TRISJ, A
+;    clrf    PORTH, A
+;    clrf    PORTJ, A
+;    
+;    call    ADC_Setup2
+;
+;main:
+;    call    ADC_Read2
+;    movff   ADRESH, PORTH, A
+;    movff   ADRESL, PORTJ, A
+;    bra	    main
+;    
+;    end	    setup
 
 psect	code, abs
 
 setup:
     org	    0x0000
-    call    touchscreen_setup
-    clrf    PORTH, A
     clrf    TRISH, A
-    clrf    PORTJ, A 
     clrf    TRISJ, A
-
+    clrf    PORTH, A
+    clrf    PORTJ, A
+    
+    call    touchscreen_setup
 
 main:
-    call    touchscreen_detect
+    call    touchscreen_read
+    movff   ADRESH, PORTH, A
+    movff   ADRESL, PORTJ, A
     bra	    main
     
     end	    setup

@@ -17,6 +17,7 @@
       <itemPath>GLCD.s</itemPath>
       <itemPath>touchscreen.s</itemPath>
       <itemPath>H:/MicroprocessorsLab/Microporcessor_Project/timer.s</itemPath>
+      <itemPath>ADC_test.s</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"

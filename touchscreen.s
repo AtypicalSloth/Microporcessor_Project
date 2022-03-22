@@ -1,6 +1,6 @@
 #include <xc.inc>
 
-global	touchscreen_setup, touchscreen_detect
+global	touchscreen_setup, touchscreen_read
 extrn	LCD_delay_x4us
 
 psect	udata_acs
@@ -23,96 +23,41 @@ psect	touchscreen_code, class=CODE
 ; F  :  1  2  3  4  5  6  7
 ; AN :  6  7  8  9 10 11  5
 
-; Reference voltage: AN3
 
 touchscreen_setup:
     clrf    TRISE, A		    ; Set port E to output
     setf    TRISF, A		    ; Set port F to input
     
-    banksel ANCON0		    ; ANCON0 is not in access ram
-    bsf	    ANSEL7		    ; Set y-read pin to analog
-    banksel ANCON1		    ; ANCON1 is not in access ram
-    bsf	    ANSEL10		    ; Set x-read pin to analog
+    banksel ANCON1		    ; ANCON1 is not in access RAM
+    bsf	    ANSEL10		    ; Set x-read pin to analog (RF5)
     
-    movlw   00100000B		    ; Trigger from ECCP2, Vref=4.096V,
-    movwf   ADCON1, A		    ; 0V -Vref
+;    banksel ANCON0
+;    bsf	    ANSEL7
     
-    movlw   00110001B		    ; Left justified output, Fosc/64 clock and
-    movwf   ADCON2, A		    ; acquisition times
+    movlw   00101001B		    ; Select ANSEL10 to read from, turn on ADC
+    movwf   ADCON0, A
     
-    movlb   0
+    movlw   0x03
+    movwf   ADCON1, A
     
-    return
-
-
-touchscreen_readX:
+    movlw   0xF6
+    movwf   ADCON2, A
+    
+    movlb   0			    ; Return to data bank 0
+    
     bsf	    PORTE, DRIVEA, A	    ; Apply voltage in x-direction
     NOP
     bcf	    PORTE, DRIVEB, A
     NOP
     
-    movlw   00011101B		    ; Select AN7 for measurement, turn on ADC
-    movwf   ADCON0, A
-    
-    movlw   0x01
-    call    LCD_delay_x4us
-    
-    bsf	    GO			    ; Start conversion by setting GO bit
-
-touchscreen_readX_loop:
-    btfsc   GO			    ; Check to see if finished
-    bra	    touchscreen_readX_loop
-    
-    return
-
-
-touchscreen_readY:
-    bcf	    PORTE, DRIVEA, A	    ; Apply voltage in y-direction
-    NOP
-    bsf	    PORTE, DRIVEB, A
-    NOP
-    
-    movlw   00101001B		    ; Select AN10 for measurement, turn on ADC
-    movwf   ADCON0, A
-    
-    movlw   0x01
-    call    LCD_delay_x4us
-    
-    bsf	    GO			    ; Start conversion by setting GO bit
-
-touchscreen_readY_loop:
-    btfsc   GO			    ; Check to see if finished
-    bra	    touchscreen_readY_loop
-    
     return
 
 
 touchscreen_read:
-    call    touchscreen_readX	    ; take x-reading
-    ;movff   ADRESH, readXH
-    ;movff   ADRESL, readXL
+    bsf	    GO			    ; Start conversion by setting GO bit
     
-    ;call    touchscreen_readY	    ; take y-reading
-    ;movff   ADRESH, readYH
-    ;movff   ADRESL, readYL
+touchscreen_loop:
+    btfsc   GO			    ; Check if conversion has finished
+    bra	    touchscreen_loop
     
     return
-
-
-touchscreen_detect:
-    call    touchscreen_read
-    movff   ADRESH, PORTJ, A
-    
-    return				; PORTJ LEDs shows XH bit 
-
-
-;touchscreen_detect2:
-;    call    touchscreen_read
-;    
-;    movlw   0x00
-;    CPFSGT  readXH, A
-;    bra	    touchscreen_detect2		    ; No touch = loop around this subroutine
-;    
-;    movlw   0xFF
-;    movwf   PORTH, A
-;    return

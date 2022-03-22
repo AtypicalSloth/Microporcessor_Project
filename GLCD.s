@@ -1,6 +1,7 @@
 #include <xc.inc>
 
 global  GLCD_Setup, Clear_Screen, Display_Digit7, Display_Digit8, Display_Digit9, Display_Digit10, Display_DigitQ, LCD_delay_x4us, LCD_Delay_ms
+global	LCD_delay_x4us
 
 
 
@@ -175,7 +176,21 @@ Display_DigitQ:
 Display_char:
 	; left half of the screen
 	bcf	LATB, LCD_CS1, A	; select screen 1
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
 	bsf	LATB, LCD_CS2, A	; deselect screen 2
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
 	
 	call	load_table    
 	
@@ -314,7 +329,79 @@ LCD_Enable:	    ; pulse enable bit LCD_E for 500ns, each nop = 62.5ns
 	nop
 	nop
 	nop
+	nop ; Delte from this point
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
 	bsf	LATB, LCD_E, A	    ; Take enable high
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop ; Delete from this point
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
 	nop
 	nop
 	nop

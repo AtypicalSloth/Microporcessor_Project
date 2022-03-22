@@ -63,9 +63,9 @@ Touch_Detect:
 	movlw	    0x00		; Check if screen is touched
 	CPFSGT	    ADRESH, A		; Skip if ADRESH > 0
 	bra	    touch_0	        ; Detect no touch if = 0
-	BTFSC	    ADRESH, 3, A        ; Test if bit 3 of ADRESH is 0
-	bra	    touch_R	        ; Detect RHS if = 1
+	BTFSS	    ADRESH, 3, A        ; Test if bit 3 of ADRESH is 1
 	bra	    touch_L	        ; Detect LHS if = 0
+	bra	    touch_R	        ; Detect RHS if = 1
 
 touch_0:
 	movwf	    Touch_Status, A     ; Set status to 0x00

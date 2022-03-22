@@ -2,7 +2,7 @@
 
 extrn	Touch_Setup, Touch_Read, Touch_Detect, Touch_Status
 extrn	Timer_Setup, Timer_On, Timer_Int_Hi, Counter
-extrn	GLCD_Setup, Clear_Screen, LCD_Delay_ms
+extrn	GLCD_Setup, Clear_Screen, LCD_Delay_ms, LCD_delay_x4us
 extrn	ADC_Setup2, ADC_Read2
 
 ; Make file register for recording status regiuster a global register
@@ -20,7 +20,7 @@ interrupt:
 
 
 setup:
-	clrf	    TRISH, A
+	clrf	    TRISG, A
 	movlw	    0x0A
 	CPFSEQ	    Counter, A		; Check if counter is less than 10
 	goto	    game_loop		; Move to main game loop if so
@@ -42,13 +42,7 @@ game_start:
 
 
 game_run:
-	movlw	    250
-	call	    LCD_Delay_ms
-	call	    LCD_Delay_ms
-	call	    LCD_Delay_ms
-	call	    LCD_Delay_ms
-	call	    LCD_Delay_ms
-	call	    LCD_Delay_ms
+	movlw	    250			; Wait for 0.5 seconds for game to start
 	call	    LCD_Delay_ms
 	call	    LCD_Delay_ms
 	call	    Timer_On		; Begin countdown
@@ -60,6 +54,8 @@ game_loop:
 	CPFSGT	    Touch_Status, A
 	bra	    game_loop
 	
+	;movff	    ADRESH, PORTH, A
+	;movff	    ADRESL, PORTJ, A
 	movlw	    0x0F
 	CPFSEQ	    Touch_Status, A
 	bra	    game_Ltouch
@@ -84,28 +80,16 @@ game_Rtouch:
 
 Lwin:
 	movlw	    0xF0
-	movwf	    PORTH, A
+	movwf	    PORTG, A
 	movlw	    250
-	call	    LCD_Delay_ms
-	call	    LCD_Delay_ms
-	call	    LCD_Delay_ms
-	call	    LCD_Delay_ms
-	call	    LCD_Delay_ms
-	call	    LCD_Delay_ms
 	call	    LCD_Delay_ms
 	call	    LCD_Delay_ms
 	goto	    main
 
 Rwin:
 	movlw	    0x0F
-	movwf	    PORTH, A
+	movwf	    PORTG, A
 	movlw	    250
-	call	    LCD_Delay_ms
-	call	    LCD_Delay_ms
-	call	    LCD_Delay_ms
-	call	    LCD_Delay_ms
-	call	    LCD_Delay_ms
-	call	    LCD_Delay_ms
 	call	    LCD_Delay_ms
 	call	    LCD_Delay_ms
 	goto	    main

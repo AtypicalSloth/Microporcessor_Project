@@ -41,7 +41,7 @@ Timer_Int_Hi:
 	retfie	    f			; Return if not
 	
 	decf	    Counter, A		; decrement counter
-    
+	
 test_for_9:
 	movlw	    0x09		; Compare counter to 9
 	CPFSEQ	    Counter, A		; Skip if equal to 9
@@ -50,7 +50,7 @@ test_for_9:
 	;movlw	    0x09
 	;movwf	    PORTD, A
 	goto	    timer_int_hi_end	; Go to function return
-    
+	
 test_for_8:
 	movlw	    0x08		; Compare counter to 8
 	CPFSEQ	    Counter, A		; Skip if equal to 8
@@ -59,33 +59,33 @@ test_for_8:
 	;movlw	    0x08
 	;movwf	    PORTD, A
 	goto	    timer_int_hi_end	; Go to function return
-
+	
 test_for_7:
-    movlw	0x07			; Compare counter to 7
-    CPFSEQ	Counter, A		; Skip if equal to 7
-    bra		test_for_0		; Go to test if counter is 0
-    call	Display_Digit7		; Show 7 on display
-    ;movlw	0x07
-    ;movwf	PORTD, A
-    goto	timer_int_hi_end			; Go to function return
-
+	movlw	    0x07		; Compare counter to 7
+	CPFSEQ	    Counter, A		; Skip if equal to 7
+	bra	    test_for_0		; Go to test if counter is 0
+	call	    Display_Digit7	; Show 7 on display
+	;movlw	    0x07
+	;movwf	    PORTD, A
+	goto	    timer_int_hi_end	; Go to function return
+	
 test_for_0:
-    movlw	0x00			; Compare counter to 0
-    CPFSEQ	Counter, A		; Skip if equal to 0
-    bra		question_mark		; Go to show ? if counter is 6-1
-    call	Display_Digit10		; Show ? on display
-    ;movlw	0x00
-    ;movwf	PORTD, A
-    bcf		TMR0ON			; Turn off timer 0
-    goto	timer_int_hi_end	; Go to function return
-
+	movlw	    0x00		; Compare counter to 0
+	CPFSEQ	    Counter, A		; Skip if equal to 0
+	bra	    question_mark	; Go to show ? if counter is 6-1
+	call	    Display_Digit10	; Show ? on display
+	;movlw	    0x00
+	;movwf	    PORTD, A
+	bcf	    TMR0ON		; Turn off timer 0
+	goto	    timer_int_hi_end	; Go to function return
+	
 question_mark:
-    call	Display_DigitQ		; Show ? on display
-    ;movlw	0xFF
-    ;movwf	PORTD, A
-    goto	timer_int_hi_end	; Go to function return
-
+	call	    Display_DigitQ	; Show ? on display
+	;movlw	    0xFF
+	;movwf	    PORTD, A
+	goto	    timer_int_hi_end	; Go to function return
+	
 timer_int_hi_end:
-    bcf		TMR0IF			; Clear interrupt flag
-    movff	Stat, STATUS, A
-    retfie	f
+	bcf	    TMR0IF		; Clear interrupt flag
+	movff	    Stat, STATUS, A
+	retfie	    f

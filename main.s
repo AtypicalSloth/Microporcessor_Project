@@ -1,174 +1,119 @@
 #include <xc.inc>
 
-; Subroutines from touchscreen file
-extrn	touchscreen_setup, touchscreen_read
-    
-; Subroutines from timer/interrupt file
-extrn	timer_setup, timer_on, timer_int_hi, counter
-
-; Subroutines from GLCD file
-extrn	GLCD_Setup, Clear_Screen, Display_Digit7, Display_Digit8, Display_Digit9, Display_Digit10, Display_DigitQ
-
-; Subroutines from ADC testing file
+extrn	Touch_Setup, Touch_Read, Touch_Detect, Touch_Status
+extrn	Timer_Setup, Timer_On, Timer_Int_Hi, Counter
+extrn	GLCD_Setup, Clear_Screen, LCD_Delay_ms
 extrn	ADC_Setup2, ADC_Read2
 
 ; Make file register for recording status regiuster a global register
-global	stat
-
-
-psect	udata_acs
-stat:	ds  1
-
-
-; ######################### TOUCHSCREEN TEST CODE ##############################
-;psect	code, abs
-
-;org	    100h
-
-;setup:
-;    call    touchscreen_setup
-;    clrf    PORTH, A
-;    clrf    TRISH, A
-;    clrf    PORTJ, A 
-;    clrf    TRISJ, A
-    
-;    movlw   0x00
-
-
-;main:
-;    call    touchscreen_detect
-;    bra	    main
-
-;    end
-
-
-; ######################### TIMER TEST CODE ####################################
-;psect	code, abs
-;
-;rst:
-;    org	    0x0000
-;    goto    counter_setup
-;
-;interrupt:
-;    org	    0x0008
-;    call    timer_int_hi
-;
-;setup:
-;    movlw   0x0A
-;    CPFSEQ  counter, A
-;    goto    loop
-;    call    GLCD_Setup
-;    call    Clear_Screen
-;    ;clrf    TRISD, A
-;    ;clrf    LATD, A
-;    
-;    call    timer_setup
-;    call    timer_on
-;
-;loop:
-;    goto    $
-;
-;counter_setup:
-;    movlw   0x0A
-;    movwf   counter, A
-;    goto    setup
-;
-;    end	    rst
-
-
-; ######################### GLCD TEST CODE #####################################
-;psect	code, abs
-;	
-;main:
-;	org	0x0
-;	goto	start
-;	
-;start:
-;	call	GLCD_Setup
-;	call	Clear_Screen
-;
-;maincode: 
-;	
-;	call	Display_Digit7
-;	call	Display_Digit8
-;	call	Display_Digit9
-;	call	Display_Digit10
-;	call	Display_DigitQ
-;	goto	$
-;
-;	end	main
-
-
-; ######################### MAIN CODE ##########################################
-;psect	code, abs
-;
-;main:
-;	org	0x0000
-;	goto    counter_setup
-;
-;interrupt:
-;	org	0x0008
-;	call    timer_int_hi
-;
-;setup:
-;	movlw   0x0A
-;	CPFSEQ  counter, A		; Check if counter is less than 10
-;	goto    loop			; Move to loop if so
-;	
-;	call    GLCD_Setup		; Setup GLCD
-;	call    Clear_Screen		; Clear GLCD screen
-;	
-;	call    timer_setup		; Setup timer
-;	call	timer_on
-;
-;
-;loop:
-;	goto    $
-;
-;counter_setup:
-;	movlw   0x0A
-;	movwf   counter, A
-;	goto    setup
-;
-;	end	main
-
-
-    
-; ################# ADC TEST CODE ##############################################
-;psect	code, abs
-;
-;setup:
-;    org	    0x0000
-;    clrf    TRISH, A
-;    clrf    TRISJ, A
-;    clrf    PORTH, A
-;    clrf    PORTJ, A
-;    
-;    call    ADC_Setup2
-;
-;main:
-;    call    ADC_Read2
-;    movff   ADRESH, PORTH, A
-;    movff   ADRESL, PORTJ, A
-;    bra	    main
-;    
-;    end	    setup
 
 psect	code, abs
 
-setup:
-    org	    0x0000
-    clrf    TRISH, A
-    clrf    TRISJ, A
-    clrf    PORTH, A
-    clrf    PORTJ, A
-    
-    call    touchscreen_setup
-
 main:
-    call    touchscreen_read
-    movff   ADRESH, PORTH, A
-    movff   ADRESL, PORTJ, A
-    bra	    main
-    
-    end	    setup
+	org	    0x0000
+	goto	    counter_setup
+
+
+interrupt:
+	org	    0x0008		; Interrupt vector
+	call	    Timer_Int_Hi
+
+
+setup:
+	clrf	    TRISH, A
+	movlw	    0x0A
+	CPFSEQ	    Counter, A		; Check if counter is less than 10
+	goto	    game_loop		; Move to main game loop if so
+	
+	call	    GLCD_Setup		; Setup GLCD
+	call	    Clear_Screen	; Clear screen
+	call	    Timer_Setup		; Setup timer
+	call	    Touch_Setup		; Setup touchscreen and ADC
+
+
+game_start:
+	call	    Touch_Read		; Read touch position on screen
+	call	    Touch_Detect	; Find touch position
+	
+	movlw	    0x00		; Check if touch has occured
+	CPFSGT	    Touch_Status, A
+	bra	    game_start
+	bra	    game_run		; Begin game if touched
+
+
+game_run:
+	movlw	    250
+	call	    LCD_Delay_ms
+	call	    LCD_Delay_ms
+	call	    LCD_Delay_ms
+	call	    LCD_Delay_ms
+	call	    LCD_Delay_ms
+	call	    LCD_Delay_ms
+	call	    LCD_Delay_ms
+	call	    LCD_Delay_ms
+	call	    Timer_On		; Begin countdown
+game_loop:
+	call	    Touch_Read		; Read touch position on screen
+	call	    Touch_Detect	; Find touch position
+	
+	movlw	    0x00		; If screen not touched, keep looping
+	CPFSGT	    Touch_Status, A
+	bra	    game_loop
+	
+	movlw	    0x0F
+	CPFSEQ	    Touch_Status, A
+	bra	    game_Ltouch
+	bra	    game_Rtouch
+
+
+game_Ltouch:
+	bcf	    TMR0ON
+	movlw	    0x00
+	CPFSEQ	    Counter, A
+	bra	    Rwin
+	bra	    Lwin
+
+
+game_Rtouch:
+	bcf	    TMR0ON
+	movlw	    0x00
+	CPFSEQ	    Counter, A
+	bra	    Lwin
+	bra	    Rwin
+
+
+Lwin:
+	movlw	    0xF0
+	movwf	    PORTH, A
+	movlw	    250
+	call	    LCD_Delay_ms
+	call	    LCD_Delay_ms
+	call	    LCD_Delay_ms
+	call	    LCD_Delay_ms
+	call	    LCD_Delay_ms
+	call	    LCD_Delay_ms
+	call	    LCD_Delay_ms
+	call	    LCD_Delay_ms
+	goto	    main
+
+Rwin:
+	movlw	    0x0F
+	movwf	    PORTH, A
+	movlw	    250
+	call	    LCD_Delay_ms
+	call	    LCD_Delay_ms
+	call	    LCD_Delay_ms
+	call	    LCD_Delay_ms
+	call	    LCD_Delay_ms
+	call	    LCD_Delay_ms
+	call	    LCD_Delay_ms
+	call	    LCD_Delay_ms
+	goto	    main
+
+
+counter_setup:
+	movlw	    0x0A
+	movwf	    Counter, A
+	goto	    setup
+	
+	end	    main

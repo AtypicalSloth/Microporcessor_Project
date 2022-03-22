@@ -1,7 +1,9 @@
 #include <xc.inc>
 
-global  GLCD_Setup, Clear_Screen, Display_Digit7, Display_Digit8, Display_Digit9, Display_Digit10, Display_DigitQ, LCD_delay_x4us
-    
+global  GLCD_Setup, Clear_Screen, Display_Digit7, Display_Digit8, Display_Digit9, Display_Digit10, Display_DigitQ, LCD_delay_x4us, LCD_Delay_ms
+
+
+
 psect	udata_acs			; named variables in access ram
 	
 LCD_cnt_l:	ds 1			; reserve 1 byte for variable LCD_cnt_l
@@ -93,7 +95,7 @@ GLCD_Setup:
 	bsf	LATB, LCD_RST, A
 
 	movlw   40
-	call    LCD_delay_ms		; wait 40ms for LCD to start up properly
+	call    LCD_Delay_ms		; wait 40ms for LCD to start up properly
 	movlw   00111110B		; display off
 	call    LCD_Send_Byte_I
 	movlw   10111001B		; set x address to 1
@@ -325,7 +327,7 @@ LCD_Enable:	    ; pulse enable bit LCD_E for 500ns, each nop = 62.5ns
 	return
     
 ; * a few delay routines below here as LCD timing can be quite critical *
-LCD_delay_ms:		    ; delay given in ms in W
+LCD_Delay_ms:		    ; delay given in ms in W
 	movwf	LCD_cnt_ms, A
 lcdlp2:	movlw	250	    ; 1 ms delay
 	call	LCD_delay_x4us	

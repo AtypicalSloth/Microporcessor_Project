@@ -19,6 +19,7 @@
       <itemPath>H:/MicroprocessorsLab/Microporcessor_Project/timer.s</itemPath>
       <itemPath>ADC_test.s</itemPath>
       <itemPath>testing.s</itemPath>
+      <itemPath>randomizer.s</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"

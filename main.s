@@ -1,11 +1,11 @@
 #include <xc.inc>
 
 extrn	Touch_Setup, Touch_Read, Touch_Detect, Touch_Status
-extrn	Timer_Setup, Timer_On, Timer_Int_Hi, Timer_Counter
-extrn	GLCD_Setup, Clear_Screen, Delay_ms, LCD_delay_x4us, LCD_delay
-extrn	ADC_Setup2, ADC_Read2
+extrn	Timer_Setup, Timer_On, Timer_Int_Hi, Timer_Counter, Delay_ms
+extrn	GLCD_Setup, Clear_Screen
+extrn	Random_Number
 
-; Make file register for recording status regiuster a global register
+
 
 psect	code, abs
 
@@ -21,14 +21,10 @@ interrupt:
 
 setup:
 	clrf	    TRISG, A
-;	movlw	    0x0A
-;	CPFSEQ	    Counter, A		; Check if counter is less than 10
-;	goto	    game_loop		; Move to main game loop if so
 	
 	call	    GLCD_Setup		; Setup GLCD
 	call	    Clear_Screen	; Clear screen
 	call	    Timer_Setup		; Setup timer
-	call	    Touch_Setup		; Setup touchscreen and ADC
 
 
 game_start:
@@ -126,7 +122,8 @@ Rwin:
 
 
 counter_setup:
-	movlw	    0x0A
+	call	    Touch_Setup		    ; Setup touchscreen and ADC
+	call	    Random_Number
 	movwf	    Timer_Counter, A
 	goto	    setup
 	

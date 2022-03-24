@@ -27,13 +27,38 @@ Timer_Setup:
 
 
 Timer_On:
-	movlw	    0x0A		; Set counter to 10
-	movwf	    Timer_Counter, A
-	call	    Display_Digit10
+;	movlw	    0x0A		; Set counter to 10
+;	movwf	    Timer_Counter, A
+;	call	    Display_Digit10
+
+start_at_10:
+	movlw	    0x0A		; Compare counter to 9
+	CPFSEQ	    Timer_Counter, A	; Skip if equal to 9
+	bra	    start_at_9		; Go to test if counter is 8
+	call	    Display_Digit10	; Show 9 on display
+	goto	    timer_on_end	; Go to function return
+
+start_at_9:
+	movlw	    0x09		; Compare counter to 9
+	CPFSEQ	    Timer_Counter, A	; Skip if equal to 9
+	bra	    start_at_8		; Go to test if counter is 8
+	call	    Display_Digit9	; Show 9 on display
+	goto	    timer_on_end	; Go to function return
 	
+start_at_8:
+	movlw	    0x08		; Compare counter to 8
+	CPFSEQ	    Timer_Counter, A	; Skip if equal to 8
+	bra	    start_at_7		; Go to test if counter is 7
+	call	    Display_Digit8	; Show 8 on display
+	goto	    timer_on_end	; Go to function return
+	
+start_at_7:
+	call	    Display_Digit7	; Show 7 on display	
+
+timer_on_end:
 	bsf	    TMR0ON		; Turn on timer 0
-	
 	return
+
 
 
 Timer_Int_Hi:
@@ -41,36 +66,30 @@ Timer_Int_Hi:
 	
 	movff	    STATUS, Stat, A
 	
-;	btfss	    TMR0IF		; Check this is timer 0 interrupt
-;	retfie	    f			; Return if not
+	btfss	    TMR0IF		; Check this is timer 0 interrupt
+	retfie	    f			; Return if not
 	
-	decf	    Timer_Counter, A		; decrement counter
-	
+	decf	    Timer_Counter, A	; decrement counter
+
 test_for_9:
 	movlw	    0x09		; Compare counter to 9
-	CPFSEQ	    Timer_Counter, A		; Skip if equal to 9
+	CPFSEQ	    Timer_Counter, A	; Skip if equal to 9
 	bra	    test_for_8		; Go to test if counter is 8
 	call	    Display_Digit9	; Show 9 on display
-	;movlw	    0x09
-	;movwf	    PORTD, A
 	goto	    timer_int_hi_end	; Go to function return
 	
 test_for_8:
 	movlw	    0x08		; Compare counter to 8
-	CPFSEQ	    Timer_Counter, A		; Skip if equal to 8
+	CPFSEQ	    Timer_Counter, A	; Skip if equal to 8
 	bra	    test_for_7		; Go to test if counter is 7
 	call	    Display_Digit8	; Show 8 on display
-	;movlw	    0x08
-	;movwf	    PORTD, A
 	goto	    timer_int_hi_end	; Go to function return
 	
 test_for_7:
 	movlw	    0x07		; Compare counter to 7
 	CPFSEQ	    Timer_Counter, A	; Skip if equal to 7
 	bra	    test_for_6		; Go to test if counter is 0
-	call	    Display_DigitQ	; Show 7 on display
-	;movlw	    0x07
-	;movwf	    PORTD, A
+	call	    Display_Digit7	; Show 7 on display
 	goto	    timer_int_hi_end	; Go to function return
 
 test_for_6:
@@ -78,8 +97,6 @@ test_for_6:
 	CPFSEQ	    Timer_Counter, A	; Skip if equal to 7
 	bra	    test_for_5		; Go to test if counter is 0
 	call	    Display_DigitQ	; Show 7 on display
-	;movlw	    0x07
-	;movwf	    PORTD, A
 	goto	    timer_int_hi_end	; Go to function return
 
 test_for_5:
@@ -87,8 +104,6 @@ test_for_5:
 	CPFSEQ	    Timer_Counter, A	; Skip if equal to 7
 	bra	    test_for_4		; Go to test if counter is 0
 	call	    Display_DigitQ	; Show 7 on display
-	;movlw	    0x07
-	;movwf	    PORTD, A
 	goto	    timer_int_hi_end	; Go to function return
 
 test_for_4:
@@ -96,8 +111,6 @@ test_for_4:
 	CPFSEQ	    Timer_Counter, A	; Skip if equal to 7
 	bra	    test_for_3		; Go to test if counter is 0
 	call	    Display_DigitQ	; Show 7 on display
-	;movlw	    0x07
-	;movwf	    PORTD, A
 	goto	    timer_int_hi_end	; Go to function return
 
 test_for_3:
@@ -105,8 +118,6 @@ test_for_3:
 	CPFSEQ	    Timer_Counter, A	; Skip if equal to 7
 	bra	    test_for_0		; Go to test if counter is 0
 	call	    Display_DigitQ	; Show 7 on display
-	;movlw	    0x07
-	;movwf	    PORTD, A
 	goto	    timer_int_hi_end	; Go to function return
 
 
@@ -116,15 +127,11 @@ test_for_0:
 	CPFSEQ	    Timer_Counter, A		; Skip if equal to 0
 	bra	    question_mark	; Go to show ? if counter is 6-1
 	call	    Display_DigitQ	; Show ? on display
-	;movlw	    0x00
-	;movwf	    PORTD, A
 	bcf	    TMR0ON		; Turn off timer 0
 	goto	    timer_int_hi_end	; Go to function return
 	
 question_mark:
 	call	    Display_DigitQ	; Show ? on display
-	;movlw	    0xFF
-	;movwf	    PORTD, A
 	goto	    timer_int_hi_end	; Go to function return
 	
 timer_int_hi_end:

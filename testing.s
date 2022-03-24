@@ -189,14 +189,7 @@ extrn	ADC_Setup2, ADC_Read2
 ;    end	    setup
 
     
-    
-    
-    
-    
-    
-    
-    
-
+;######################### UHHHHHHHHHHHHHHHH IDK ###############################
 ;psect	code, abs
 ;
 ;rst:
@@ -236,3 +229,41 @@ extrn	ADC_Setup2, ADC_Read2
 ;    
 ;
 ;    end	    rst
+
+;########################## RANDOMIZER TEST ####################################
+;psect	udata_acs
+;
+;Random:	    ds	1
+;Random2:    ds	1
+;
+;psect	    code, abs
+;
+;main:
+;    clrf    PORTH, A
+;    clrf    TRISH, A
+;    call    Touch_Setup
+;
+;Generate_Number: 
+;    ; Generates random number between 7 - 10 using ADC noise
+;    call    Touch_Read
+;    movlw   00000001B
+;    andwf   ADRESL, W, A
+;    movwf   Random, A
+;    
+;    call    Touch_Read
+;    call    Touch_Read
+;    call    Touch_Read
+;    
+;    call    Touch_Read
+;    movlw   00000001B		    ; mask for the 2 least significant bits
+;    andwf   ADRESL, W, A	    ; gets the 2 least significant bits from ADC 
+;    movwf   Random2, A
+;    rlncf   Random2, W, A
+;    
+;    addwf   Random, W, A
+;    addlw   7
+;    
+;    movwf   PORTH, A
+;    
+;    goto    $
+;    end	    main

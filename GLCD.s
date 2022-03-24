@@ -1,6 +1,6 @@
 #include <xc.inc>
 
-global  GLCD_Setup, Clear_Screen, Display_Digit7, Display_Digit8, Display_Digit9, Display_Digit10, Display_DigitQ, LCD_delay_x4us, LCD_Delay_ms
+global  GLCD_Setup, Clear_Screen, Display_Digit7, Display_Digit8, Display_Digit9, Display_Digit10, Display_DigitQ, LCD_delay_x4us, LCD_Delay_ms, LCD_delay
 global	LCD_delay_x4us
 
 
@@ -20,6 +20,12 @@ table_8:	ds 3
 table_9:	ds 3
 table_10:	ds 3
 table_Q:	ds 3
+table_A:	ds 3
+table_S:	ds 3
+table_T:	ds 3
+table_O:	ds 3
+table_P:	ds 3    
+    
     
 LCD_x_address:	ds 1			; reserve 1 byte for iterating through x page [0, 63]
 LCD_y_address:	ds 1			; reserve 1 byte for iterating through y [1,8]
@@ -74,6 +80,43 @@ table_QTL:
     db 00000000B, 00000000B, 00000000B, 00000000B, 00000000B, 00000000B, 00000000B, 11000111B
     db 11000011B, 11100111B, 01111110B, 00111100B, 00000000B, 00000000B, 00000000B, 00000000B
     db 11000111B, 00000000B, 00000000B, 00000000B, 00000000B, 00000000B, 00000000B, 00000000B
+    
+table_ATL: 
+    db 00000000B, 00000000B, 11110000B, 11110000B, 00001100B, 00001100B, 00000011B, 00000011B 
+    db 11000000B, 11000000B, 11111111B, 11111111B, 11000011B, 11000011B, 00000011B, 00000011B
+    db 00000011B, 00000011B, 00001100B, 00001100B, 11110000B, 11110000B, 00000000B, 00000000B 
+    db 00000011B, 00000011B, 11000011B, 11000011B, 11111111B, 11111111B, 11000000B, 11000000B
+
+table_STL: 
+    db 00000000B, 00000000B, 00111100B, 00111100B, 11000011B, 11000011B, 11000011B, 11000011B
+    db 00000000B, 00000000B, 00111100B, 00111100B, 11000000B, 11000000B, 11000000B, 11000000B
+    db 00000011B, 00000011B, 00000011B, 00000011B, 00111100B, 00111100B, 00000000B, 00000000B 
+    db 11000011B, 11000011B, 11000011B, 11000011B, 00111100B, 00111100B, 00000000B, 00000000B 
+    
+table_TTL: 
+    db 00000000B, 00001111B, 00001111B, 00000011B, 00000011B, 00000011B, 00000011B, 11111111B
+    db 00000000B, 00000000B, 00000000B, 00000000B, 00000000B, 11000000B, 11000000B, 11111111B 
+    db 11111111B, 00000011B, 00000011B, 00000011B, 00000011B, 00001111B, 00001111B, 00000000B 
+    db 11111111B, 11000000B, 11000000B, 00000000B, 00000000B, 00000000B, 00000000B, 00000000B 
+  
+table_RTL: 
+    db 00000011B, 00000011B, 11111111B, 11111111B, 11000011B, 11000011B, 11000011B, 11000011B
+    db 11000000B, 11000000B, 11111111B, 11111111B, 11000000B, 11000000B, 00000011B, 00000011B
+    db 11000011B, 11000011B, 11000011B, 11000011B, 00111100B, 00111100B, 00000000B, 00000000B
+    db 00000011B, 00000011B, 00001100B, 00001100B, 11111000B, 11110000B, 11000000B, 11000000B
+    
+table_OTL: 
+    db 00000000B, 00000000B, 11111100B, 11111100B, 00000011B, 00000011B, 00000011B, 00000011B 
+    db 00000000B, 00000000B, 00111111B, 00111111B, 11000000B, 11000000B, 11000000B, 11000000B 
+    db 00000011B, 00000011B, 00000011B, 00000011B, 11111100B, 11111100B, 00000000B, 00000000B
+    db 11000000B, 11000000B, 11000000B, 11000000B, 00111111B, 00111111B, 00000000B, 00000000B
+
+table_PTL: 
+    db 00000000B, 00000000B, 00000011B, 00000011B, 11111111B, 11111111B, 00000011B, 00000011B 
+    db 00000000B, 00000000B, 11000000B, 11000000B, 11111111B, 11111111B, 11000000B, 11000000B 
+    db 00000011B, 00000011B, 00000011B, 00000011B, 11111100B, 11111100B, 00000000B, 00000000B
+    db 00000011B, 00000011B, 00000011B, 00000011B, 00000000B, 00000000B, 00000000B, 00000000B 
+
     
 psect	    glcd_code, class=CODE
 
@@ -146,7 +189,55 @@ GLCD_Setup:
 	movlw	low(table_QTL)		; address of data in PM
 	movwf	table_Q+2, A		; load low byte to TBLPTRL
 	
-	return 
+;	 ; load table A address
+;	movlw	low highword(table_ATL)	; address of data in PM
+;	movwf	table_A, A		; load upper bits to TBLPTRU
+;	movlw	high(table_ATL)		; address of data in PM
+;	movwf	table_A+1, A		; load high byte to TBLPTRH
+;	movlw	low(table_ATL)		; address of data in PM
+;	movwf	table_A+2, A		; load low byte to TBLPTRL
+;	
+;	; load table T address
+;	movlw	low highword(table_STL)	; address of data in PM
+;	movwf	table_S, A		; load upper bits to TBLPTRU
+;	movlw	high(table_STL)		; address of data in PM
+;	movwf	table_S+1, A		; load high byte to TBLPTRH
+;	movlw	low(table_STL)		; address of data in PM
+;	movwf	table_S+2, A		; load low byte to TBLPTRL
+;	
+;	; load table R address
+;	movlw	low highword(table_RTL)	; address of data in PM
+;	movwf	table_R, A		; load upper bits to TBLPTRU
+;	movlw	high(table_RTL)		; address of data in PM
+;	movwf	table_R+1, A		; load high byte to TBLPTRH
+;	movlw	low(table_RTL)		; address of data in PM
+;	movwf	table_R+2, A		; load low byte to TBLPTRL
+;	
+;	; load table O address
+;	movlw	low highword(table_OTL)	; address of data in PM
+;	movwf	table_O, A		; load upper bits to TBLPTRU
+;	movlw	high(table_OTL)		; address of data in PM
+;	movwf	table_O+1, A		; load high byte to TBLPTRH
+;	movlw	low(table_OTL)		; address of data in PM
+;	movwf	table_O+2, A		; load low byte to TBLPTRL
+;	
+;	; load table P address
+;	movlw	low highword(table_PTL)	; address of data in PM
+;	movwf	table_P, A		; load upper bits to TBLPTRU
+;	movlw	high(table_PTL)		; address of data in PM
+;	movwf	table_P+1, A		; load high byte to TBLPTRH
+;	movlw	low(table_PTL)		; address of data in PM
+;	movwf	table_P+2, A		; load low byte to TBLPTRL
+;	
+;	; load table S address
+;	movlw	low highword(table_STL)	; address of data in PM
+;	movwf	table_S, A		; load upper bits to TBLPTRU
+;	movlw	high(table_STL)		; address of data in PM
+;	movwf	table_S+1, A		; load high byte to TBLPTRH
+;	movlw	low(table_STL)		; address of data in PM
+;	movwf	table_S+2, A		; load low byte to TBLPTRL
+;	
+;	return 
 
 Display_Digit7: 
 	lfsr	0, table_7
@@ -172,7 +263,37 @@ Display_DigitQ:
 	lfsr	0, table_Q
 	call	Display_char
 	return
-    
+	
+;Display_DigitA: 
+;	lfsr	0, table_A 
+;	call	Display_char 
+;	return
+;	
+;Display_DigitR: 
+;	lfsr	0, table_R
+;	call	Display_char
+;	return
+;	
+;Display_DigitT: 
+;	lfsr	0, table_T 
+;	call	Display_char 
+;	return
+;	
+;Display_DigitS: 
+;	lfsr	0, table_S
+;	call	Display_char
+;	return
+;	
+;Display_DigitO: 
+;	lfsr	0, table_O 
+;	call	Display_char 
+;	return
+;	
+;Display_DigitP: 
+;	lfsr	0, table_P 
+;	call	Display_char 
+;	return
+;    
 Display_char:
 	; left half of the screen
 	bcf	LATB, LCD_CS1, A	; select screen 1
@@ -211,7 +332,7 @@ Display_char:
 	; right half of the screen
 	bsf	LATB, LCD_CS1, A	; deselect screen 1
 	bcf	LATB, LCD_CS2, A	; select screen 2
-;	
+	
 	; send table to top right screen 
 	movlw	TX
 	movwf	LCD_x_address, A 
@@ -329,79 +450,7 @@ LCD_Enable:	    ; pulse enable bit LCD_E for 500ns, each nop = 62.5ns
 	nop
 	nop
 	nop
-	nop ; Delte from this point
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
 	bsf	LATB, LCD_E, A	    ; Take enable high
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop ; Delete from this point
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
 	nop
 	nop
 	nop
@@ -435,7 +484,6 @@ LCD_delay_x4us:		    ; delay given in chunks of 4 microsecond in W
 
 LCD_delay:			; delay routine	4 instruction loop == 250ns	    
 	movlw 	0x00		; W=0
-lcdlp1:	decf 	LCD_cnt_l, F, A	; no carry when 0x00 -> 0xff
-	subwfb 	LCD_cnt_h, F, A	; no carry when 0x00 -> 0xff
+lcdlp1:	decf 	LCD_cnt_l, F, A	; no carry when 0x00 -> 0xff	subwfb 	LCD_cnt_h, F, A	; no carry when 0x00 -> 0xff
 	bc 	lcdlp1		; carry, then loop again
 	return			; carry reset so return

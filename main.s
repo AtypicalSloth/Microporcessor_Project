@@ -1,7 +1,7 @@
 #include <xc.inc>
 
 extrn	Touch_Setup, Touch_Read, Touch_Detect, Touch_Status
-extrn	Timer_Setup, Timer_On, Timer_Int_Hi, Timer_Counter, LCD_Delay_ms, Delay_ms, LCD_delay_025s
+extrn	Timer_Setup, Timer_On, Timer_Int_Hi, Timer_Counter, LCD_Delay_ms, Delay_ms, LCD_delay_025s, Timer_Speed
 extrn	GLCD_Setup, Clear_Screen, Display_Border, Display_TAPTOSTART, Display_PLAYER1WINS, Display_PLAYER2WINS
 extrn	Random_Number
 
@@ -100,6 +100,8 @@ counter_setup:
 	call	    Touch_Setup		    ; Setup touchscreen and ADC
 	call	    Random_Number
 	movwf	    Timer_Counter, A
+	call	    Random_Number
+	movwf	    Timer_Speed, A
 	goto	    setup
 
 

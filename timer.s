@@ -1,13 +1,14 @@
 #include <xc.inc>
 
 extrn	GLCD_Setup, Clear_Screen, Display_Digit7, Display_Digit8, Display_Digit9, Display_Digit10, Display_DigitQ
-global	Timer_Setup, Timer_On, Timer_Int_Hi, Timer_Counter, Delay_ms
+global	Timer_Setup, Timer_On, Timer_Int_Hi, Timer_Counter, Delay_ms, Timer_Speed
 
 
 psect	udata_acs
 
 Timer_Counter:    ds	1
-Stat:	    ds	1
+Timer_Speed:	  ds	1
+Stat:		  ds	1
 
 cnt_ms:	    ds	1
 cnt_l:	    ds	1
@@ -21,6 +22,33 @@ Timer_Setup:
 	bsf	    GIE			; Enable all interrupts
 	
 	movlw	    00000111B		; Set timer 0 to 16-bit, Fosc/4/256
+	
+very_fast_timer:
+	movlw	    7			; Check if random number = 7
+	CPFSEQ	    Timer_Speed
+	bra	    fast_timer
+	movlw	    00000100B		; Set timer 0 to 16-bit, Fosc/4/32
+	bra	    timer_setup_end
+
+fast_timer:
+	movlw	    8			; Check if random number = 8
+	CPFSEQ	    Timer_Speed
+	bra	    slow_timer
+	movlw	    00000101B		; Set timer 0 to 16-bit, Fosc/4/64
+	bra	    timer_setup_end
+
+slow_timer:
+	movlw	    9			; Check if random number = 9
+	CPFSEQ	    Timer_Speed
+	bra	    very_slow_timer
+	movlw	    00000110B		; Set timer 0 to 16-bit, Fosc/4/128
+	bra	    timer_setup_end
+
+very_slow_timer:
+	movlw	    00000111B		; Set timer 0 to 16-bit, Fosc/4/256
+	bra	    timer_setup_end
+	
+timer_setup_end:
 	movwf	    T0CON, A		; = 62.5 kHz clock rate, ~ 1 s rollover
 	
 	return

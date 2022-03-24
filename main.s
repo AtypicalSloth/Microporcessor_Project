@@ -1,8 +1,8 @@
 #include <xc.inc>
 
 extrn	Touch_Setup, Touch_Read, Touch_Detect, Touch_Status
-extrn	Timer_Setup, Timer_On, Timer_Int_Hi, Timer_Counter, Delay_ms
-extrn	GLCD_Setup, Clear_Screen
+extrn	Timer_Setup, Timer_On, Timer_Int_Hi, Timer_Counter, LCD_Delay_ms, Delay_ms, LCD_delay_025s
+extrn	GLCD_Setup, Clear_Screen, Display_Border, Display_TAPTOSTART, Display_PLAYER1WINS, Display_PLAYER2WINS
 extrn	Random_Number
 
 
@@ -25,6 +25,8 @@ setup:
 	call	    GLCD_Setup		; Setup GLCD
 	call	    Clear_Screen	; Clear screen
 	call	    Timer_Setup		; Setup timer
+	call	    Display_Border
+	call	    Display_TAPTOSTART
 
 
 game_start:
@@ -38,29 +40,15 @@ game_start:
 
 
 game_run:
-	movlw	    250
-	call	    Delay_ms
-	call	    Delay_ms
-	call	    Delay_ms
-	call	    Delay_ms
-	call	    Delay_ms
-	call	    Delay_ms
-	call	    Delay_ms
-	call	    Delay_ms
-	call	    Delay_ms
-	call	    Delay_ms
-	call	    Delay_ms
-	call	    Delay_ms
-	call	    Delay_ms
-	call	    Delay_ms
-	call	    Delay_ms
-	call	    Delay_ms
-	call	    Delay_ms
-	call	    Delay_ms
+	call	    very_long_delay
+	
+	call	    Clear_Screen
+	call	    Display_Border
+	
 	call	    Timer_On		; Begin countdown
 game_loop:
-	movlw	    10
-	call	    Delay_ms
+	movlw	    20
+	call	    LCD_delay_025s
 	call	    Touch_Read		; Read touch position on screen
 	call	    Touch_Detect	; Find touch position
 	
@@ -94,30 +82,17 @@ game_Rtouch:
 
 Lwin:
 	movlw	    0xF0
-	movwf	    PORTG, A
-	movlw	    250
-	call	    Delay_ms
-	call	    Delay_ms
-	call	    Delay_ms
-	call	    Delay_ms
-	call	    Delay_ms
-	call	    Delay_ms
-	call	    Delay_ms
-	call	    Delay_ms
+	call	    Display_PLAYER1WINS
+	call	    very_long_delay
+	call	    very_long_delay
 	goto	    main
 
 Rwin:
 	movlw	    0x0F
-	movwf	    PORTG, A
+	call	    Display_PLAYER2WINS
 	movlw	    250
-	call	    Delay_ms
-	call	    Delay_ms
-	call	    Delay_ms
-	call	    Delay_ms
-	call	    Delay_ms
-	call	    Delay_ms
-	call	    Delay_ms
-	call	    Delay_ms
+	call	    very_long_delay
+	call	    very_long_delay
 	goto	    main
 
 
@@ -126,5 +101,12 @@ counter_setup:
 	call	    Random_Number
 	movwf	    Timer_Counter, A
 	goto	    setup
+
+
+very_long_delay:
+	movlw	    100 
+	call	    LCD_delay_025s
+	
+	return
 	
 	end	    main

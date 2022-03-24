@@ -4,8 +4,8 @@ extrn	Touch_Setup, Touch_Read, Touch_Detect, Touch_Status
 extrn	Timer_Setup, Timer_On, Timer_Int_Hi, Timer_Counter
 extrn	GLCD_Setup, Clear_Screen, Delay_ms, LCD_delay_x4us, LCD_delay
 extrn	ADC_Setup2, ADC_Read2
-
-
+extrn	Display_Border, Display_TAPTOSTART, Display_PLAYER1WINS, Display_PLAYER2WINS
+    
 ; ######################### TOUCHSCREEN TEST CODE ##############################
 ;psect	code, abs
 ;
@@ -267,3 +267,32 @@ extrn	ADC_Setup2, ADC_Read2
 ;    
 ;    goto    $
 ;    end	    main
+
+
+
+
+;psect	code, abs
+;	
+;main:
+;	org	0x0
+;	goto	start
+;	
+;start:
+;	call	GLCD_Setup
+;	call	Clear_Screen
+;
+;maincode: 
+;	
+;;	call	Display_Border
+;;	call	Clear_Screen
+;;	call	Display_TAPTOSTART
+;;	call	Clear_Screen
+;	call	Display_PLAYER1WINS
+;	call	Clear_Screen
+;	call	Display_PLAYER2WINS
+;	call	Clear_Screen
+;	
+;	goto	$
+;
+;	end	main
+	   

@@ -88,11 +88,8 @@ timer_on_end:
 	return
 
 
-
 Timer_Int_Hi:
-    ; NEED TO KEEP RECORD OF OLD STATUS REGISTER!!!!!   - STATUS
-	
-	movff	    STATUS, Stat, A
+	movff	    STATUS, Stat, A	; Keep record of the STATUS register
 	
 	btfss	    TMR0IF		; Check this is timer 0 interrupt
 	retfie	    f			; Return if not
@@ -147,8 +144,6 @@ test_for_3:
 	bra	    test_for_0		; Go to test if counter is 0
 	call	    Display_DigitQ	; Show 7 on display
 	goto	    timer_int_hi_end	; Go to function return
-
-
 	
 test_for_0:
 	movlw	    0x00		; Compare counter to 0
@@ -166,9 +161,6 @@ timer_int_hi_end:
 	bcf	    TMR0IF		; Clear interrupt flag
 	movff	    Stat, STATUS, A
 	retfie	    f
-
-
-
 
 
 ; * a few delay routines below here as LCD timing can be quite critical *

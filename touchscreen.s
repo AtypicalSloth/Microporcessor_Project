@@ -7,8 +7,8 @@ global	Touch_Setup, Touch_Read, Touch_Status, Touch_Detect
 psect	udata_acs
 
 touch_pins:
-	DRIVEA	    EQU 4	    ; DRIVEA pin is port E4 (measure x)
-	DRIVEB	    EQU 5	    ; DRIVEB pin is port E5 (measure y)
+	DRIVEA	    EQU 4		; DRIVEA pin is port E4 (measure x)
+	DRIVEB	    EQU 5		; DRIVEB pin is port E5 (measure y)
 
 Touch_Status:	    ds  1
 

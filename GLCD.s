@@ -2,6 +2,7 @@
 
 global  GLCD_Setup, Clear_Screen, Display_Digit7, Display_Digit8, Display_Digit9, Display_Digit10, Display_DigitQ, LCD_delay_x4us, LCD_Delay_ms, LCD_delay, LCD_delay_025s
 global	Display_Border, Display_TAPTOSTART, Display_PLAYER1WINS, Display_PLAYER2WINS
+global	LCD_Enable
 
 psect	udata_acs			; named variables in access ram
 	

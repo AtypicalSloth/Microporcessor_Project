@@ -25,8 +25,10 @@ setup:
 	call	    GLCD_Setup		; Setup GLCD
 	call	    Clear_Screen	; Clear screen
 	call	    Timer_Setup		; Setup timer
-	call	    Display_Border
-	call	    Display_TAPTOSTART
+	call	    Display_Border	; Display game border
+	call	    Display_TAPTOSTART	; Display "tap to start" message
+	clrf	    PORTH, A
+	clrf	    TRISH, A
 
 
 game_start:
@@ -40,12 +42,14 @@ game_start:
 
 
 game_run:
-	call	    very_long_delay
+	call	    very_long_delay	; Delay before game begins
 	
-	call	    Clear_Screen
-	call	    Display_Border
+	call	    Clear_Screen	; Remove "tap to start" message
+	call	    Display_Border	; Re-display border
 	
 	call	    Timer_On		; Begin countdown
+
+
 game_loop:
 	movlw	    20
 	call	    LCD_delay_025s
@@ -56,56 +60,55 @@ game_loop:
 	CPFSGT	    Touch_Status, A
 	bra	    game_loop
 	
-	;movff	    ADRESH, PORTH, A
-	;movff	    ADRESL, PORTJ, A
-	movlw	    0x0F
+	movlw	    0x0F		; If screen is touched, detect side
 	CPFSEQ	    Touch_Status, A
 	bra	    game_Ltouch
 	bra	    game_Rtouch
 
 
-game_Ltouch:
-	bcf	    TMR0ON
-	movlw	    0x00
+game_Ltouch:				; Left side pressed
+	bcf	    TMR0ON		; Turn off Timer 0
+	movlw	    0x00		; Check if countdown has finished
 	CPFSEQ	    Timer_Counter, A
-	bra	    Rwin
-	bra	    Lwin
+	bra	    Rwin		; Right wins if not
+	bra	    Lwin		; Left wins if yes
 
 
-game_Rtouch:
-	bcf	    TMR0ON
-	movlw	    0x00
+game_Rtouch:				; Right side pressed
+	bcf	    TMR0ON		; Turn off Timer 0
+	movlw	    0x00		; Check if countdown has finished
 	CPFSEQ	    Timer_Counter, A
-	bra	    Lwin
-	bra	    Rwin
+	bra	    Lwin		; Left wins if not
+	bra	    Rwin		; Right wins if yes
 
 
 Lwin:
-	movlw	    0xF0
+	movlw	    0xF0		; Display player 1 victory message
 	call	    Display_PLAYER1WINS
-	call	    very_long_delay
+	movlw	    250
+	call	    very_long_delay	; Delay before reset
 	call	    very_long_delay
 	goto	    main
 
 Rwin:
-	movlw	    0x0F
+	movlw	    0x0F		; Display player 2 victory message
 	call	    Display_PLAYER2WINS
 	movlw	    250
-	call	    very_long_delay
+	call	    very_long_delay	; Delay before reset
 	call	    very_long_delay
 	goto	    main
 
 
 counter_setup:
-	call	    Touch_Setup		    ; Setup touchscreen and ADC
-	call	    Random_Number
-	movwf	    Timer_Counter, A
-	call	    Random_Number
-	movwf	    Timer_Speed, A
+	call	    Touch_Setup		; Setup touchscreen and ADC
+	call	    Random_Number	; Generate random number in [7, 10]
+	movwf	    Timer_Counter, A	; Start counter at generated value
+	call	    Random_Number	; Generate random number in [7, 10]
+	movwf	    Timer_Speed, A	; Set timer speed according to number
 	goto	    setup
 
 
-very_long_delay:
+very_long_delay:			; Lond delay to use in game
 	movlw	    100 
 	call	    LCD_delay_025s
 	

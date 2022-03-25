@@ -2,9 +2,10 @@
 
 extrn	Touch_Setup, Touch_Read, Touch_Detect, Touch_Status
 extrn	Timer_Setup, Timer_On, Timer_Int_Hi, Timer_Counter
-extrn	GLCD_Setup, Clear_Screen, Delay_ms, LCD_delay_x4us, LCD_delay
+extrn	GLCD_Setup, Clear_Screen, Delay_ms, LCD_delay_x4us, LCD_Delay_ms, LCD_Enable, LCD_delay_025s
 extrn	ADC_Setup2, ADC_Read2
 extrn	Display_Border, Display_TAPTOSTART, Display_PLAYER1WINS, Display_PLAYER2WINS
+extrn	Display_Digit7, Display_Digit8, Display_Digit9, Display_Digit10, Display_DigitQ,Display_Border, Display_TAPTOSTART, Display_PLAYER1WINS, Display_PLAYER2WINS
     
 ; ######################### TOUCHSCREEN TEST CODE ##############################
 ;psect	code, abs
@@ -188,47 +189,7 @@ extrn	Display_Border, Display_TAPTOSTART, Display_PLAYER1WINS, Display_PLAYER2WI
 ;    
 ;    end	    setup
 
-    
-;######################### UHHHHHHHHHHHHHHHH IDK ###############################
-;psect	code, abs
-;
-;rst:
-;    org	    0x0000
-;    goto    counter_setup
-;
-;interrupt:
-;    org	    0x0008
-;    goto    Timer_Int_Hi
-;    
-;setup:
-;;    movlw   0x0A
-;;    CPFSEQ  Timer_Counter, A
-;;    goto    loop
-;    call    GLCD_Setup
-;    call    Clear_Screen
-;    clrf    TRISH, A
-;    clrf    PORTH, A
-;    
-;    call    Timer_Setup
-;    call    Timer_On
-;    
-;    call    Touch_Setup
-;
-;loop:
-;    movff   Timer_Counter, PORTH
-;    movlw   250
-;    call    Delay_ms
-;    
-;    ;call    Touch_Read
-;    bra	    loop
-;
-;counter_setup:
-;    movlw   0x0A
-;    movwf   Timer_Counter, A
-;    goto    setup
-;    
-;
-;    end	    rst
+
 
 ;########################## RANDOMIZER TEST ####################################
 ;psect	udata_acs
@@ -295,4 +256,3 @@ extrn	Display_Border, Display_TAPTOSTART, Display_PLAYER1WINS, Display_PLAYER2WI
 ;	goto	$
 ;
 ;	end	main
-	   
